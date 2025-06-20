@@ -4,6 +4,13 @@ Refers to the entire platform and ecosystem for creating and running automated w
 
 ## Components
 
+```text
+Workflow
+    Job
+        Step
+            Action
+```
+
 ### Workflow
 
 Automated scripts (actions) that run when specific events occur in your repository. It's an efficient way to automate development tasks.
@@ -14,11 +21,40 @@ Automated scripts (actions) that run when specific events occur in your reposito
 
 ### Job
 
+Define units of work that execute specific tasks within a workflow, each job with its own steps
+
+Elements:
+
+- **jobs**: Keyword to declare a job
+- **job_name**: Unique name for the job
+- **runs-on**: Target runner type (e.g., ubuntu-latest, windows-latest, self-hosted runner name)
+
 ### Step
+
+Define individual tasks to be executed within a job. Executed using actions or shell commands
+
+Elements:
+
+- **steps**: Keyword to declare steps within a job
+- **uses**: (optional) Use a pre-built action from the GitHub Actions marketplace
+- **action_name**: Name of the action to use
+- **version**: (optional) Specific version of the action to use
+- **with**: (optional) Input values for the action
+- **run**: Execute a shell command within the step
+
+#### Conditional Statements
+
+Control the execution of steps based on specific conditions
+
+Keywords:
+
+- **if**: Execute a step only if a condition is true
+- **else**: Execute a step if the if condition is false
+- **needs**: Specify that a step depends on another job completing
 
 ### Action
 
-It's a script invoked from within a workflow.
+It's a script invoked from within a workflow. These are pre-built scripts that provide re-usable functionality.
 
 ## Event Types
 
@@ -92,28 +128,78 @@ on:
 ```YML
 # Automatically deploy a website to Netlify every time a new commit is pushed to the main branch
 
+name: Deploy to Netlify
 on:
     push:
         branches: [main]
 
 jobs:
-    deploy:
+    deploy: # job_name: Unique name for the job
         # Set runner. These are GitHub hosted cloud-based Virtual Machines
         runs-on: ubuntu-latest
 
-    steps:
-        - uses: actions/checkout@v3
+        steps: # List of steps to be executed within the job
+            - name: Checkout Repository
+              uses: actions/checkout@v3 # pre-built action
 
-        - name: Install dependencies
-          run: npm install
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                node-version: '14'
 
-        - name: Build Website
-          run: npm run build
+            - name: Install dependencies # name: custom name for the step
+              run: npm install # command_to_execute: shell command within the step
 
-        - name: Deploy to Netlify
-          uses: netlify/actions/cli@v1.1
-          with:
-            site_id: ${{ secrets.NETLIFY_SITE_ID }}
-            api_key: ${{ secrets.API_KEY }}
-            args: deploy --prod
+            - name: Build Website
+              run: npm run build
+
+            - name: Deploy to Netlify
+              uses: netlify/actions/cli@v1.1 # pre-built action
+              with:
+                  site_id: ${{ secrets.NETLIFY_SITE_ID }} # with: input values for the action
+                  api_key: ${{ secrets.API_KEY }}
+                  args: deploy --prod
+
+    conditional_deploy:
+        needs: deploy # This job depends on the completion of "deploy"
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Execute specific condition
+              run: echo "This step runs because the condition is true"
+              if: github.ref == 'refs/heads/main' # Condition to check if branch is main
+
+            - name: Alternative step for else
+              run: echo "This step would run if the above condition is false"
+              if: github.ref != 'refs/heads/main' # Opposite condition
 ```
+
+## Vocabulary
+
+### Workflow
+
+Overall automation script defined in a YAML file
+
+### Jobs
+
+Units of work within a workflow, each with its own steps.
+
+### Steps
+
+Individual tasks within a job, executed using actions or shell commands
+
+### Actions
+
+Pre-built scripts that provide reusable functionality
+
+### Shell Commands
+
+Custom scripts written to perform specific tasks
+
+### Runs
+
+Specific executions of a workflow triggered by events
+
+### Marketplace
+
+Central repository for discovering and sharing actions
