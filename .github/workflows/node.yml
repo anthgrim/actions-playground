@@ -1,0 +1,31 @@
+name: NodeJS CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm run test
+
+  start-server:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Conditionally Start Server
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Starting server..."

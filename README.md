@@ -2,6 +2,10 @@
 
 Refers to the entire platform and ecosystem for creating and running automated workflows within the GitHub environment
 
+## Contexts
+
+[GitHub Actions Contexts](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs)
+
 ## Components
 
 ```text
