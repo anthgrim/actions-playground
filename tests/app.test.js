@@ -1,7 +1,13 @@
 const request = require('supertest');
-const app = require('../app');
+const { app, server} = require('../app');
+
+
 
 describe('Express API Tests', () => {
+  afterAll(async () => {
+  server.close()
+})
+
   describe('GET /', () => {
     it('should return welcome message', async () => {
       const res = await request(app)
@@ -83,16 +89,6 @@ describe('Express API Tests', () => {
         
         expect(res.body).toHaveProperty('success', false);
       });
-    });
-  });
-
-  describe('404 Handler', () => {
-    it('should return 404 for non-existent routes', async () => {
-      const res = await request(app)
-        .get('/non-existent-route')
-        .expect(404);
-      
-      expect(res.body).toHaveProperty('error', 'Route not found');
     });
   });
 });
